@@ -56,6 +56,12 @@
             <artifactId>dotenv-java</artifactId>
             <version>${dotenv.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.ongres.scram</groupId>
+            <artifactId>client</artifactId>
+            <version>2.1</version>
+        </dependency>
     </dependencies>
 
     <build>
