@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package health;
+
+option java_multiple_files = true;
+option java_package = "br.com.ifsp.tcc.grpc";
+
+service HealthService {
+  rpc Check (HealthRequest) returns (HealthResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string message = 1;
+}

@@ -1,18 +1,19 @@
 package br.com.ifsp.tcc.infra.http;
 
+import br.com.ifsp.tcc.app.usecases.BillingUseCase;
 import io.javalin.Javalin;
 
 public final class HttpServer {
 
     private final Javalin app;
 
-    public HttpServer() {
+    public HttpServer(BillingUseCase billingUseCase) {
         this.app = Javalin.create(config -> {
             config.useVirtualThreads = true;
             config.showJavalinBanner = false;
         });
 
-        Routes.register(this.app);
+        Routes.register(this.app, billingUseCase);
     }
 
     public void start(int port) {

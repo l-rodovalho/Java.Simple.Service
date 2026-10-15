@@ -24,7 +24,6 @@ public final class BillingHttpController implements Handler {
         } catch (IllegalArgumentException e) {
             ctx.status(HttpStatus.NOT_FOUND).json(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(Map.of("error", "Internal server error"));
         }
     }
