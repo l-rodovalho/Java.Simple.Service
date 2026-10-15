@@ -1,9 +1,11 @@
 package br.com.ifsp.tcc.infra.database;
 
 import br.com.ifsp.tcc.infra.config.Configuration;
+import io.vertx.pgclient.PgBuilder;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.SqlConnection;
 
 public final class DatabaseConfig {
 
@@ -24,14 +26,30 @@ public final class DatabaseConfig {
         PoolOptions poolOptions = new PoolOptions()
                 .setMaxSize(Configuration.DB_POOL_MAX);
 
-        pool = Pool.pool(connectOptions, poolOptions);
+        pool = PgBuilder
+                .pool()
+                .with(poolOptions)
+                .connectingTo(connectOptions)
+                .build();
 
-        System.out.println("Connected to PostgreSQL successfully on port " + Configuration.DB_PORT);
+        try {
+            SqlConnection connection = pool.getConnection()
+                    .toCompletionStage()
+                    .toCompletableFuture()
+                    .join();
+
+            System.out.println("Connected to PostgreSQL successfully on port " + Configuration.DB_PORT);
+
+            connection.close().toCompletionStage().toCompletableFuture().join();
+        } catch (Exception e) {
+            close();
+            throw new RuntimeException("Error connecting to PostgreSQL on port " + Configuration.DB_PORT, e);
+        }
     }
 
     public static Pool getPool() {
         if (pool == null) {
-            throw new IllegalStateException("Error connecting to PostgreSQL");
+            throw new IllegalStateException("Database pool has not been initialized. Call connect() first.");
         }
         return pool;
     }
