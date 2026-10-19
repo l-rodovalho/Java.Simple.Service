@@ -9,23 +9,34 @@ import br.com.ifsp.tcc.infra.http.HttpServer;
 
 public final class Main {
 
+    private static HttpServer httpServer = null;
+    private static GrpcServer grpcServer = null;
+
     public static void main(String[] args) {
         try {
             DatabaseConfig.connect();
 
             BillingUseCase billingUseCase = MakeBillingUseCase.create();
 
-            HttpServer httpServer = new HttpServer(billingUseCase);
-            GrpcServer grpcServer = new GrpcServer(billingUseCase);
+            String protocol = Configuration.PROTOCOL;
+
+            if (protocol.equals("HTTP")) {
+                httpServer = new HttpServer(billingUseCase);
+                httpServer.start(Configuration.HTTP_PORT);
+            } else if (protocol.equals("GRPC")) {
+                grpcServer = new GrpcServer(billingUseCase);
+                grpcServer.start(Configuration.GRPC_PORT);
+            }
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                grpcServer.stop();
-                httpServer.stop();
+                if (grpcServer != null) {
+                    grpcServer.stop();
+                }
+                if (httpServer != null) {
+                    httpServer.stop();
+                }
                 DatabaseConfig.close();
             }, "shutdown-hook"));
-
-            httpServer.start(Configuration.HTTP_PORT);
-            grpcServer.start(Configuration.GRPC_PORT);
 
         } catch (Exception e) {
             System.err.println("Error on trying to start server: " + e.getMessage());

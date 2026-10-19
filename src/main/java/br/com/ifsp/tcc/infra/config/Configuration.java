@@ -14,6 +14,7 @@ public final class Configuration {
     public static final String DB_PASSWORD;
     public static final String DB_NAME;
     public static final int DB_POOL_MAX;
+    public static final String PROTOCOL;
 
     static {
         HTTP_PORT = validateNumber("HTTP_PORT", getEnv("HTTP_PORT"));
@@ -24,6 +25,7 @@ public final class Configuration {
         DB_PASSWORD = validateString("DB_PASSWORD", getEnv("DB_PASSWORD"));
         DB_NAME = validateString("DB_NAME", getEnv("DB_NAME"));
         DB_POOL_MAX = validateNumber("DB_POOL_MAX", getEnv("DB_POOL_MAX"));
+        PROTOCOL = validateString("PROTOCOL", getEnv("PROTOCOL"));
     }
 
     private Configuration() {
