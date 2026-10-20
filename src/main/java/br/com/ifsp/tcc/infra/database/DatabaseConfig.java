@@ -7,6 +7,8 @@ import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.SqlConnection;
 
+import java.util.concurrent.TimeUnit;
+
 public final class DatabaseConfig {
 
     private static Pool pool;
@@ -21,10 +23,15 @@ public final class DatabaseConfig {
                 .setPort(Configuration.DB_PORT)
                 .setUser(Configuration.DB_USER)
                 .setPassword(Configuration.DB_PASSWORD)
-                .setDatabase(Configuration.DB_NAME);
+                .setDatabase(Configuration.DB_NAME)
+                .setConnectTimeout(5000)
+                .setIdleTimeout(30)
+                .setIdleTimeoutUnit(TimeUnit.SECONDS);
 
         PoolOptions poolOptions = new PoolOptions()
-                .setMaxSize(Configuration.DB_POOL_MAX);
+                .setMaxSize(Configuration.DB_POOL_MAX)
+                .setConnectionTimeout(5000)
+                .setConnectionTimeoutUnit(TimeUnit.MILLISECONDS);
 
         pool = PgBuilder
                 .pool()
