@@ -26,7 +26,8 @@ public final class DatabaseConfig {
                 .setDatabase(Configuration.DB_NAME)
                 .setConnectTimeout(5000)
                 .setIdleTimeout(30)
-                .setIdleTimeoutUnit(TimeUnit.SECONDS);
+                .setIdleTimeoutUnit(TimeUnit.SECONDS)
+                .setCachePreparedStatements(true);
 
         PoolOptions poolOptions = new PoolOptions()
                 .setMaxSize(Configuration.DB_POOL_MAX)
