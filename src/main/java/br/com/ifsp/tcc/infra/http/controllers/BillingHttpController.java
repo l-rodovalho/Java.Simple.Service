@@ -1,5 +1,7 @@
 package br.com.ifsp.tcc.infra.http.controllers;
 
+import br.com.ifsp.tcc.app.errors.AppErrors.CustomerNotFoundException;
+import br.com.ifsp.tcc.app.errors.AppErrors.InvalidCustomerIdException;
 import br.com.ifsp.tcc.app.usecases.BillingUseCase;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -33,7 +35,9 @@ public final class BillingHttpController implements Handler {
                             result.metrics().totalDueWithInterest()));
 
             ctx.status(HttpStatus.OK).json(responseDto);
-        } catch (IllegalArgumentException e) {
+        } catch (InvalidCustomerIdException e) {
+            ctx.status(HttpStatus.BAD_REQUEST).json(Map.of("error", e.getMessage()));
+        } catch (CustomerNotFoundException e) {
             ctx.status(HttpStatus.NOT_FOUND).json(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).json(Map.of("error", "Internal server error"));

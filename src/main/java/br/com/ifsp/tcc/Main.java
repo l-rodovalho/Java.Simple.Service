@@ -1,9 +1,11 @@
 package br.com.ifsp.tcc;
 
-import br.com.ifsp.tcc.app.factories.MakeBillingUseCase;
 import br.com.ifsp.tcc.app.usecases.BillingUseCase;
+import br.com.ifsp.tcc.app.usecases.CalculateInvoicesUseCase;
+import br.com.ifsp.tcc.app.usecases.impl.BillingUseCaseImpl;
 import br.com.ifsp.tcc.infra.config.Configuration;
 import br.com.ifsp.tcc.infra.database.DatabaseConfig;
+import br.com.ifsp.tcc.infra.database.repositories.CustomerRepositoryImpl;
 import br.com.ifsp.tcc.infra.grpc.GrpcServer;
 import br.com.ifsp.tcc.infra.http.HttpServer;
 
@@ -16,16 +18,19 @@ public final class Main {
         try {
             DatabaseConfig.connect();
 
-            BillingUseCase billingUseCase = MakeBillingUseCase.create();
+            BillingUseCase billingUseCase = new BillingUseCaseImpl(new CustomerRepositoryImpl());
+            CalculateInvoicesUseCase calculateInvoicesUseCase = new CalculateInvoicesUseCase(100000);
 
             String protocol = Configuration.PROTOCOL;
 
             if (protocol.equals("HTTP")) {
-                httpServer = new HttpServer(billingUseCase);
+                httpServer = new HttpServer(billingUseCase, calculateInvoicesUseCase);
                 httpServer.start(Configuration.HTTP_PORT);
             } else if (protocol.equals("GRPC")) {
-                grpcServer = new GrpcServer(billingUseCase);
+                grpcServer = new GrpcServer(billingUseCase, calculateInvoicesUseCase);
                 grpcServer.start(Configuration.GRPC_PORT);
+            } else {
+                throw new IllegalStateException("PROTOCOL must be HTTP or GRPC");
             }
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

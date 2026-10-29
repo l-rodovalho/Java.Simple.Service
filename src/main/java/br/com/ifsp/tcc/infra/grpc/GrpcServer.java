@@ -1,6 +1,7 @@
 package br.com.ifsp.tcc.infra.grpc;
 
 import br.com.ifsp.tcc.app.usecases.BillingUseCase;
+import br.com.ifsp.tcc.app.usecases.CalculateInvoicesUseCase;
 import br.com.ifsp.tcc.infra.grpc.controllers.HealthGrpcController;
 import br.com.ifsp.tcc.infra.grpc.controllers.BillingGrpcController;
 import io.grpc.Server;
@@ -13,18 +14,21 @@ import java.util.concurrent.TimeUnit;
 public final class GrpcServer {
 
     private final BillingUseCase billingUseCase;
+    private final CalculateInvoicesUseCase calculateInvoicesUseCase;
     private Server server;
 
-    public GrpcServer(BillingUseCase billingUseCase) {
+    public GrpcServer(BillingUseCase billingUseCase, CalculateInvoicesUseCase calculateInvoicesUseCase) {
         this.billingUseCase = billingUseCase;
+        this.calculateInvoicesUseCase = calculateInvoicesUseCase;
     }
 
     public void start(int port) {
         try {
             this.server = ServerBuilder.forPort(port)
                     .executor(Executors.newVirtualThreadPerTaskExecutor())
+                    .maxInboundMessageSize(16777216)
                     .addService(new HealthGrpcController())
-                    .addService(new BillingGrpcController(this.billingUseCase))
+                    .addService(new BillingGrpcController(this.billingUseCase, this.calculateInvoicesUseCase))
                     .build()
                     .start();
 

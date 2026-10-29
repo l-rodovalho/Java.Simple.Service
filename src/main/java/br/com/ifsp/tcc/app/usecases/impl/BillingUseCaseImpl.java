@@ -1,13 +1,19 @@
 package br.com.ifsp.tcc.app.usecases.impl;
 
+import br.com.ifsp.tcc.app.errors.AppErrors.CustomerNotFoundException;
+import br.com.ifsp.tcc.app.errors.AppErrors.InvalidCustomerIdException;
 import br.com.ifsp.tcc.app.repositories.CustomerRepository;
 import br.com.ifsp.tcc.app.usecases.BillingUseCase;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 public final class BillingUseCaseImpl implements BillingUseCase {
+
+    private static final Pattern UUID_PATTERN = Pattern.compile(
+            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
     private final CustomerRepository customerRepository;
 
@@ -17,8 +23,12 @@ public final class BillingUseCaseImpl implements BillingUseCase {
 
     @Override
     public BillingResult execute(String customerId) {
+        if (customerId == null || !UUID_PATTERN.matcher(customerId).matches()) {
+            throw new InvalidCustomerIdException();
+        }
+
         CustomerRepository.CustomerData customer = this.customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+                .orElseThrow(CustomerNotFoundException::new);
 
         List<CustomerRepository.Bill> billingHistory = customer.billingHistory();
         if (billingHistory == null) {
